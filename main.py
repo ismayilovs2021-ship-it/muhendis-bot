@@ -23,7 +23,7 @@ from deep_translator import GoogleTranslator
 TOKEN = "8357425880:AAG-4PEylzM4aQb1RxEYbLdCDVE--KmaONg"
 
 # Qrupların ID-lərini saxlayan siyahı
-QURUPLAR = ["-1001234567890"] # Köhnə qrupun artıq buradadır
+QURUPLAR = ["-1003772396405"] # Köhnə qrupun artıq buradadır
 yaddas = []
 translator = GoogleTranslator(source='en', target='az')
 
