@@ -56,7 +56,7 @@ def xeber_paylas():
                 if len(yaddas) > 50: yaddas.pop(0)
                 
                 # Sənin qoyduğun 3.5 saatlıq vaxt
-                time.sleep(12800)
+                time.sleep(120)
             else:
                 time.sleep(30)
                 
