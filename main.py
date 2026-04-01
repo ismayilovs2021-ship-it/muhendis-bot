@@ -9,36 +9,56 @@ CHAT_ID = "-1003824053223"
 
 yaddas = []
 
-def xəbər_tap_və_paylaş():
+# Texnologiya ilə bağlı şəkil linkləri (Təsadüfi seçiləcək)
+sekil_kateqoriyalari = [
+    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e", # Robototexnika
+    "https://images.unsplash.com/photo-1518770660439-4636190af475", # Elektronika
+    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158", # Mühəndislik
+    "https://images.unsplash.com/photo-1550751827-4bd374c3f58b", # Kiber Təhlükəsizlik
+    "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0", # Texnologiya
+    "https://images.unsplash.com/photo-1531297484001-80022131f5a1"  # Gələcək
+]
+
+def xeber_paylas():
     while True:
         try:
-            # Google News-dan mühəndislik xəbərləri (Whitelisted mənbə)
+            # Google News-dan xəbərləri götürürük
             url = "https://news.google.com/rss/search?q=engineering+technology&hl=en-US&gl=US&ceid=US:en"
-            cavab = requests.get(url, timeout=20)
-            sup = BeautifulSoup(cavab.content, features="xml")
-            maddələr = sup.find_all('item')
+            res = requests.get(url, timeout=20)
+            soup = BeautifulSoup(res.content, features="xml")
+            items = soup.find_all('item')
             
-            secilen = random.choice(maddələr)
-            basliq = secilen.title.text
-            link = secilen.link.text
+            choice = random.choice(items)
+            title = choice.title.text
+            link = choice.link.text
 
             if link not in yaddas:
-                mesaj = f"🚀 **Yeni Mühəndislik Xəbəri**\n\n📌 {basliq}\n\n🔗 [Xəbərə keçid]({link})"
-                requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", 
-                              data={'chat_id': CHAT_ID, 'text': mesaj, 'parse_mode': 'Markdown'})
+                # Təsadüfi bir şəkil seçirik
+                photo_url = random.choice(sekil_kateqoriyalari)
+                
+                # Telegram-a Şəkilli Mesaj Göndərmək (sendPhoto)
+                caption = f"🚀 **Yeni Mühəndislik Xəbəri**\n\n📌 {title}\n\n🔗 [Xəbəri oxu]({link})"
+                
+                params = {
+                    'chat_id': CHAT_ID,
+                    'photo': photo_url,
+                    'caption': caption,
+                    'parse_mode': 'Markdown'
+                }
+                
+                requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=params)
                 
                 yaddas.append(link)
                 if len(yaddas) > 50: yaddas.pop(0)
                 
-                # Yoxlanış üçün: 120 saniyə (2 dəqiqə) gözləyir
-                gozleme = 120
-                print(f"Xəbər paylaşıldı. 2 dəqiqə gözlənilir...")
-                time.sleep(gozleme)
+                # Test üçün 120 saniyə (sonra 14400 edərsən)
+                time.sleep(120)
             else:
-                time.sleep(60) # Eyni xəbərdirsə, 1 dəqiqə gözlə yenisinə bax
+                time.sleep(30)
+                
         except Exception as e:
-            print(f"Xəta: {e}")
+            print(f"Xəta baş verdi: {e}")
             time.sleep(60)
 
 if __name__ == "__main__":
-    xəbər_tap_və_paylaş()
+    xeber_paylas()
