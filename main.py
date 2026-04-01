@@ -6,11 +6,13 @@ from deep_translator import GoogleTranslator
 
 # Sənin məlumatların
 TOKEN = "8357425880:AAG-4PEylzM4aQb1RxEYbLdCDVE--KmaONg"
-CHAT_ID = "-1003824053223"
 
+# Qrupların ID-lərini saxlayan siyahı
+QURUPLAR = ["-1003824053223"] # Köhnə qrupun artıq buradadır
 yaddas = []
 translator = GoogleTranslator(source='en', target='az')
 
+# 50 Şəkilli Siyahı (Bura toxunmuruq, eynilə qalır)
 sekil_kateqoriyalari = [
     "https://images.unsplash.com/photo-1485827404703-89b55fcc595e", # Robot
     "https://images.unsplash.com/photo-1518770660439-4636190af475", # Chip/Circuit
@@ -63,9 +65,29 @@ sekil_kateqoriyalari = [
     "https://images.unsplash.com/photo-1526628953301-3e589a6a8b74", # Clean Tech Lab
     "https://images.unsplash.com/photo-1581093583449-80dca9db283e"  # Engineer Control
 ]
+
+def yeni_qruplari_yoxla():
+    """Botu yeni qrupa əlavə edib /start yazanda ID-ni tapır"""
+    global QURUPLAR
+    try:
+        url = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
+        res = requests.get(url).json()
+        if res["ok"]:
+            for update in res["result"]:
+                if "message" in update and "text" in update["message"]:
+                    text = update["message"]["text"]
+                    chat_id = str(update["message"]["chat"]["id"])
+                    if text == "/start" and chat_id not in QURUPLAR:
+                        QURUPLAR.append(chat_id)
+                        print(f"Yeni qrup əlavə edildi: {chat_id}")
+    except:
+        pass
+
 def xeber_paylas():
     while True:
         try:
+            yeni_qruplari_yoxla() # Hər dövrədə yeni qrup varmı deyə baxır
+            
             url = "https://news.google.com/rss/search?q=engineering+technology&hl=en-US&gl=US&ceid=US:en"
             res = requests.get(url, timeout=20)
             soup = BeautifulSoup(res.content, features="xml")
@@ -76,30 +98,23 @@ def xeber_paylas():
             link = choice.link.text
 
             if link not in yaddas:
-                # İngiliscə başlığı Azərbaycan dilinə tərcümə edirik
                 try:
                     title_az = translator.translate(title_en)
                 except:
-                    title_az = title_en # Tərcümədə xəta olsa, ingiliscə qalsın
+                    title_az = title_en
                 
                 photo_url = random.choice(sekil_kateqoriyalari)
-                
                 caption = f"🚀 **Yeni Mühəndislik Xəbəri**\n\n📌 {title_az}\n\n🔗 [Xəbəri oxu]({link})"
                 
-                params = {
-                    'chat_id': CHAT_ID,
-                    'photo': photo_url,
-                    'caption': caption,
-                    'parse_mode': 'Markdown'
-                }
-                
-                requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=params)
+                # Tapılan xəbəri BÜTÜN qruplara göndərir
+                for qrup in QURUPLAR:
+                    params = {'chat_id': qrup, 'photo': photo_url, 'caption': caption, 'parse_mode': 'Markdown'}
+                    requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=params)
                 
                 yaddas.append(link)
                 if len(yaddas) > 50: yaddas.pop(0)
                 
-                # Sənin qoyduğun 3.5 saatlıq vaxt
-                time.sleep(120)
+                time.sleep(60) # 3.5 saat gözləmə
             else:
                 time.sleep(30)
                 
