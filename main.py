@@ -30,9 +30,9 @@ def xəbər_tap_və_paylaş():
                 yaddas.append(link)
                 if len(yaddas) > 50: yaddas.pop(0)
                 
-                # Gündə təxminən 4-6 xəbər (hər 4-6 saatdan bir)
-                gozleme = random.randint(14400, 21600)
-                print(f"Xəbər paylaşıldı. {gozleme//3600} saat gözlənilir...")
+                # Yoxlanış üçün: 120 saniyə (2 dəqiqə) gözləyir
+                gozleme = 120
+                print(f"Xəbər paylaşıldı. 2 dəqiqə gözlənilir...")
                 time.sleep(gozleme)
             else:
                 time.sleep(60) # Eyni xəbərdirsə, 1 dəqiqə gözlə yenisinə bax
