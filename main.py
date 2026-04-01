@@ -52,7 +52,7 @@ def xeber_paylas():
                 if len(yaddas) > 50: yaddas.pop(0)
                 
                 # Test üçün 120 saniyə (sonra 14400 edərsən)
-                time.sleep(120)
+                time.sleep(12800)
             else:
                 time.sleep(30)
                 
