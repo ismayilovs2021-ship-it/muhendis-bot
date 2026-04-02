@@ -23,50 +23,13 @@ threading.Thread(target=run_server, daemon=True).start()
 
 # --- MƏLUMATLAR ---
 TOKEN = "8357425880:AAG-4PEylzM4aQb1RxEYbLdCDVE--KmaONg"
-QURUPLAR = ["-1003772396405"] # Bura öz kanal ID-ni də əlavə etməyi unutma!
+# Bura həm qrup, həm kanal ID-ni dırnaqda yaz (vergüllə ayır)
+QURUPLAR = ["-1003824053223"] 
 
 yaddas = []
-
-# Tərcüməçilər
 translator_az = GoogleTranslator(source='en', target='az')
 translator_tr = GoogleTranslator(source='en', target='tr')
 
-# 50 Şəkil Siyahısı (Eynilə qalır)
-sekil_kateqoriyalari = [
-   import requests
-import time
-import random
-import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from bs4 import BeautifulSoup
-from deep_translator import GoogleTranslator
-
-# --- RENDER PORT HİYLƏSİ ---
-class SimpleHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Multi-Language Bot is Running!")
-
-def run_server():
-    try:
-        server = HTTPServer(('0.0.0.0', 8080), SimpleHandler)
-        server.serve_forever()
-    except: pass
-
-threading.Thread(target=run_server, daemon=True).start()
-
-# --- MƏLUMATLAR ---
-TOKEN = "8357425880:AAG-4PEylzM4aQb1RxEYbLdCDVE--KmaONg"
-QURUPLAR = ["-1003824053223"] # Bura öz kanal ID-ni də əlavə etməyi unutma!
-
-yaddas = []
-
-# Tərcüməçilər
-translator_az = GoogleTranslator(source='en', target='az')
-translator_tr = GoogleTranslator(source='en', target='tr')
-
-# 50 Şəkil Siyahısı (Eynilə qalır)
 sekil_kateqoriyalari = [
     "https://images.unsplash.com/photo-1485827404703-89b55fcc595e", # Robot
     "https://images.unsplash.com/photo-1518770660439-4636190af475", # Chip/Circuit
@@ -119,6 +82,7 @@ sekil_kateqoriyalari = [
     "https://images.unsplash.com/photo-1526628953301-3e589a6a8b74", # Clean Tech Lab
     "https://images.unsplash.com/photo-1581093583449-80dca9db283e"  # Engineer Control
 ]
+
 def xeber_paylas():
     while True:
         try:
@@ -132,7 +96,6 @@ def xeber_paylas():
             link = choice.link.text
 
             if link not in yaddas:
-                # Tərcümələr
                 try:
                     title_az = translator_az.translate(title_en)
                     title_tr = translator_tr.translate(title_en)
@@ -141,7 +104,7 @@ def xeber_paylas():
                 
                 photo_url = random.choice(sekil_kateqoriyalari)
                 
-                # Mesaj Formatı (3 dildə)
+                # Səliqəli 3 dilli format
                 caption = (
                     f"🚀 **Engineering News / Mühəndislik Xəbəri**\n\n"
                     f"🇦🇿 **AZ:** {title_az}\n\n"
@@ -157,63 +120,12 @@ def xeber_paylas():
                 yaddas.append(link)
                 if len(yaddas) > 50: yaddas.pop(0)
                 
-                # Gözləmə vaxtı (Yoxlamaq üçün 10, normalda 7200 və ya 12800)
-                time.sleep(12800)
-            else:
-                time.sleep(30)
-        except Exception as e:
-            print(f"Xəta: {e}")
-            time.sleep(60)
-
-if __name__ == "__main__":
-    xeber_paylas()
-]
-
-def xeber_paylas():
-    while True:
-        try:
-            url = "https://news.google.com/rss/search?q=engineering+technology&hl=en-US&gl=US&ceid=US:en"
-            res = requests.get(url, timeout=20)
-            soup = BeautifulSoup(res.content, features="xml")
-            items = soup.find_all('item')
-            
-            choice = random.choice(items)
-            title_en = choice.title.text
-            link = choice.link.text
-
-            if link not in yaddas:
-                # Tərcümələr
-                try:
-                    title_az = translator_az.translate(title_en)
-                    title_tr = translator_tr.translate(title_en)
-                except:
-                    title_az, title_tr = title_en, title_en
-                
-                photo_url = random.choice(sekil_kateqoriyalari)
-                
-                # Mesaj Formatı (3 dildə)
-                caption = (
-                    f"🚀 **Engineering News / Mühəndislik Xəbəri**\n\n"
-                    f"🇦🇿 **AZ:** {title_az}\n\n"
-                    f"🇹🇷 **TR:** {title_tr}\n\n"
-                    f"🇬🇧 **EN:** {title_en}\n\n"
-                    f"🔗 [Read More / Oxu / Oku]({link})"
-                )
-                
-                for qrup in QURUPLAR:
-                    params = {'chat_id': qrup, 'photo': photo_url, 'caption': caption, 'parse_mode': 'Markdown'}
-                    requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=params)
-                
-                yaddas.append(link)
-                if len(yaddas) > 50: yaddas.pop(0)
-                
-                # Gözləmə vaxtı (Yoxlamaq üçün 10, normalda 7200 və ya 12800)
+                # Test üçün 10 saniyə elədim, xəbər gələndən sonra 12800 edərsən
                 time.sleep(100)
             else:
-                time.sleep(30)
+                time.sleep(10)
         except Exception as e:
-            print(f"Xəta: {e}")
-            time.sleep(60)
+            time.sleep(20)
 
 if __name__ == "__main__":
     xeber_paylas()
