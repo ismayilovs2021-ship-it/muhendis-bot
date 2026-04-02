@@ -121,7 +121,7 @@ def xeber_paylas():
                 if len(yaddas) > 50: yaddas.pop(0)
                 
                 # Test üçün 10 saniyə elədim, xəbər gələndən sonra 12800 edərsən
-                time.sleep(100)
+                time.sleep(12800)
             else:
                 time.sleep(10)
         except Exception as e:
