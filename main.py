@@ -129,7 +129,7 @@ def xeber_paylas():
                 yaddas.append(link)
                 if len(yaddas) > 50: yaddas.pop(0)
                 
-                time.sleep(10800) # 3.5 saat gözləmə
+                time.sleep(100) # 3.5 saat gözləmə
             else:
                 time.sleep(30)
                 
