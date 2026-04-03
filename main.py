@@ -6,12 +6,12 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from bs4 import BeautifulSoup
 from deep_translator import GoogleTranslator
 
-# --- RENDER PORT HİYLƏSİ (Botun sönməməsi üçün) ---
+# --- RENDER OYAQ SAXLAMA (Keep-Alive) ---
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"Engineering Bot is Active!")
+        self.wfile.write(b"Bot is live and scheduled for 6 hours!")
 
 def run_server():
     try:
@@ -23,16 +23,16 @@ threading.Thread(target=run_server, daemon=True).start()
 
 # --- MƏLUMATLAR ---
 TOKEN = "8357425880:AAG-4PEylzM4aQb1RxEYbLdCDVE--KmaONg"
-# Yeni ID-ni bura əlavə etdim
+# Bura mütləq öz düzgün ID-ni yaz (Son göndərdiyin: -1003772396405)
 QURUPLAR = ["-1003772396405"] 
 
-# PAYLAŞILAN XƏBƏRLƏRİN YADDAŞI
 yaddas = []
-
 translator_az = GoogleTranslator(source='en', target='az')
 translator_tr = GoogleTranslator(source='en', target='tr')
 
-# 50 Müxtəlif Şəkil Linki (Qısa olması üçün bura bir neçəsini qoyuram, sən hamısını saxlaya bilərsən)
+# 6 Saat saniyə ilə: 6 * 60 * 60 = 21600 saniyə
+ALTI_SAAT = 21600
+
 sekil_kateqoriyalari = [
     "https://images.unsplash.com/photo-1485827404703-89b55fcc595e", # Robot
     "https://images.unsplash.com/photo-1518770660439-4636190af475", # Chip/Circuit
@@ -87,26 +87,23 @@ sekil_kateqoriyalari = [
 ]
 
 def xeber_paylas():
+    print("Bot işə düşdü və xəbər axtarır...")
     while True:
         try:
-            # Google News-dan ən son mühəndislik xəbərlərini çəkirik
-            url = "https://news.google.com/rss/search?q=engineering+technology+robotics+space&hl=en-US&gl=US&ceid=US:en"
-            res = requests.get(url, timeout=20)
+            url = "https://news.google.com/rss/search?q=engineering+technology&hl=en-US&gl=US&ceid=US:en"
+            res = requests.get(url, timeout=30)
             soup = BeautifulSoup(res.content, features="xml")
             items = soup.find_all('item')
             
-            # Xəbərləri qarışdırırıq ki, hər dəfə eyni sıra ilə yoxlamasın
             random.shuffle(items)
             
-            tapildi = False
+            success = False
             for choice in items:
                 link = choice.link.text
-                
-                # ƏGƏR BU LİNK YADDAŞDA YOXDURSA (Yəni yenidirsə):
                 if link not in yaddas:
                     title_en = choice.title.text
                     
-                    # Tərcümələr
+                    # Tərcümə cəhdi
                     try:
                         title_az = translator_az.translate(title_en)
                         title_tr = translator_tr.translate(title_en)
@@ -116,35 +113,35 @@ def xeber_paylas():
                     photo_url = random.choice(sekil_kateqoriyalari)
                     
                     caption = (
-                        f"🚀 **New Engineering Update**\n\n"
-                        f"🇦🇿 **AZ:** {title_az}\n\n"
-                        f"🇹🇷 **TR:** {title_tr}\n\n"
+                        f"🚀 **Qlobal Mühəndislik Yeniliyi**\n\n"
+                        f"🇦🇿 **AZ:** {title_az}\n"
+                        f"🇹🇷 **TR:** {title_tr}\n"
                         f"🇬🇧 **EN:** {title_en}\n\n"
-                        f"🔗 [Read More]({link})"
+                        f"🔗 [Mənbəyə keçid / Read More]({link})"
                     )
                     
                     for qrup in QURUPLAR:
-                        params = {'chat_id': qrup, 'photo': photo_url, 'caption': caption, 'parse_mode': 'Markdown'}
-                        requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=params)
+                        api_url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+                        payload = {'chat_id': qrup, 'photo': photo_url, 'caption': caption, 'parse_mode': 'Markdown'}
+                        r = requests.post(api_url, data=payload)
+                        if r.status_code == 200:
+                            success = True
                     
-                    # Bu linki yaddaşa əlavə et ki, bir daha paylaşmasın
-                    yaddas.append(link)
-                    if len(yaddas) > 100: yaddas.pop(0) # Son 100 xəbəri yadda saxla
-                    
-                    tapildi = True
-                    print(f"Yeni xəbər paylaşıldı: {title_en}")
-                    break # Bir dənə yeni xəbər paylaşdıqsa, dayan və gözləməyə keç
+                    if success:
+                        yaddas.append(link)
+                        if len(yaddas) > 100: yaddas.pop(0)
+                        print(f"Paylaşıldı! İndi 6 saat gözlənilir... (Saat: {time.ctime()})")
+                        break
             
-            if tapildi:
-                # Yeni xəbər tapıldısa, növbəti xəbər üçün 2 saat (7200 saniyə) gözlə
-                time.sleep(12800) 
+            # Əgər paylaşım uğurlu oldusa 6 saat, olmadısa 5 dəqiqə gözləyib yenidən cəhd et
+            if success:
+                time.sleep(ALTI_SAAT)
             else:
-                # Yeni xəbər yoxdursa, 10 dəqiqə sonra yenidən yoxla
-                print("Yeni xəbər tapılmadı, 10 dəqiqə gözlənilir...")
-                time.sleep(600)
-                
+                print("Yeni xəbər tapılmadı, 5 dəqiqə sonra yenidən yoxlanacaq.")
+                time.sleep(300)
+
         except Exception as e:
-            print(f"Xəta baş verdi: {e}")
+            print(f"Xəta baş verdi: {e}. 1 dəqiqə sonra yenidən cəhd olunur...")
             time.sleep(60)
 
 if __name__ == "__main__":
