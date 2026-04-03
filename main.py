@@ -137,7 +137,7 @@ def xeber_paylas():
             
             if tapildi:
                 # Yeni xəbər tapıldısa, növbəti xəbər üçün 2 saat (7200 saniyə) gözlə
-                time.sleep(12800) 
+                time.sleep(100) 
             else:
                 # Yeni xəbər yoxdursa, 10 dəqiqə sonra yenidən yoxla
                 print("Yeni xəbər tapılmadı, 10 dəqiqə gözlənilir...")
